@@ -90,25 +90,28 @@ function isFlipped(position) {
 }
 
 let lastCard = -1
+let lock = false
 
 function clickCard(element) {
     const position = element.getAttribute("data-position")
 
-    if (isFlipped(position))
+    if (isFlipped(position) || lock)
         return
 
+    lock = true
     flipCard(position, false)
 
     if (lastCard !== -1 && position !== lastCard) {
 
         if (cards[position] == cards[lastCard]) {
             console.log("acertou")
-
+            lock = false
         } else {
             const currentLastCard = lastCard
             setTimeout(() => {
                 flipCard(position);
                 flipCard(currentLastCard);
+                lock = false
             }, 2000)
 
 
@@ -120,7 +123,7 @@ function clickCard(element) {
     }
 
     lastCard = position;
-
+    lock = false
 }
 
 
