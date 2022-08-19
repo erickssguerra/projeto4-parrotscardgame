@@ -11,42 +11,49 @@ h1 {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
-
-
+    gap: 20px;
 }
 
 .card {
     width: 117px;
     height: 146px;
-    background-color: #A7E9AF;
-    border: 1px solid #99cea8;
-    border-radius: 9px;
-    cursor: pointer;
     position: relative;
-
-
+    cursor: pointer;
 
 }
 
-.front-card {
-    background-image: url("./images/front.png");
-    background-size: 100px;
-    background-repeat: no-repeat;
-    background-position: center;
+.card img {
+    width: 80px;
+}
+
+.face {
     width: 100%;
     height: 100%;
+    background-color: #A7E9AF;
+    border: 1px solid #99cea8;
+    background-image: "";
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: absolute;
-
+    backface-visibility: hidden;
 }
 
-.back-card {}
-
-.back-card img {
-    width: 80%;
-
-
+.inner-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
 }
 
-.hidden {
-    visibility: hidden;
+.flip {
+    transform: rotateY(180deg);
+}
+
+
+.back-card {
+    transform: rotateY(180deg);
 }
