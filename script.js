@@ -1,9 +1,11 @@
+let cardNumber;
 let cards = [];  //array que vai receber as cartas
-let cardNumber = 14; // prompt("Digite o número de cartas para o jogo (número par entre 4 e 14):");
 
 
 gameSettings();
 function gameSettings() {
+
+    cardNumber = prompt("Digite o número de cartas para o jogo (número par entre 4 e 14):");
 
     while (!(cardNumber >= 4 && cardNumber <= 14 && cardNumber % 2 == 0)) {
 
@@ -39,6 +41,7 @@ function displayCards() { //dispor carta a carta na tela
     //primeiro seleciono a id cards-container em que as cartas serão dispostas
     const container = document.querySelector("#cards-container");
 
+
     for (i = 0; i < cards.length; i++) {
         //a cada iteração, inserir uma carta no meu container.
 
@@ -57,6 +60,8 @@ function displayCards() { //dispor carta a carta na tela
         //colocar um atributo na div card chamado position cujo valor é i, isto é, a posição no container
         //este valor vai dar a identidade da carta (que será usada para futura comparação)
         cardDiv.setAttribute("data-position", i);
+
+        //adicionando a funçionalidade onclick na função clickCard
         cardDiv.setAttribute("onclick", "clickCard(this)");
 
 
@@ -79,114 +84,125 @@ function displayCards() { //dispor carta a carta na tela
     }
 }
 
-function flipCard(position) {
-    const inner = document.querySelectorAll(".inner-card")[position]
-    inner.classList.toggle("flip")
-}
-
-function isFlipped(position) {
-    const inner = document.querySelectorAll(".inner-card")[position]
-    return inner.classList.contains("flip")
-}
-
-let lastCard = -1
+let lastCard = -1 //vai ser usada para dar a posição (começa com -1 pois é uma posição inexistente = não clicada)
 let lock = false
+let moves = 0
 
 function clickCard(element) {
+
+    // pego a posição do elemento clicado
     const position = element.getAttribute("data-position")
 
-    if (isFlipped(position) || lock)
+
+    //primeiro excluo a possibilidade de clicar numa carta que já está virada ou...
+    //...numa carta que está proibida de virar (por ex: durante o intervalo de clicar em 2 cartas, ou em duas cartas já "acertadas")
+
+    //para isso, verifico se isFlipped(position) retorna verdadeiro (ler linha de isFlipped abaixo)... 
+    //...ou verifico se lock está verdadeiro.
+    //se uma ou outra possibilidade for verdadeira, então, a função clickCard acaba
+    if (isFlipped(position) || lock) {
         return
+    } //caso contrário...
+    // (isto é, se a carta clicada não estiver virada anteriormente ou a carta clicada não estiver proibida de ser clicada)
 
-    lock = true
-    flipCard(position, false)
+    lock = true //as cartas vão ser proibidas de serem clicadas
+    flipCard(position) //dou toggle na carta[position] com a função flipCard
 
+    //verifico...
+
+    //...se: (I) a última carta clicada estiver não estiver na posição [-1] (isto é, se houver uma lastCard) e... 
+    //... (II) a posição dessa carta clicada for ≠ da última carta clicada, (isto é, clicar na mesma carta)... OU SEJA...
+    //...RESUMINDO: se a segunda carta clicada estiver apta de ser clicada, sem impedimentos pela regra, executa o que está dentro do {}
     if (lastCard !== -1 && position !== lastCard) {
 
-        if (cards[position] == cards[lastCard]) {
-            console.log("acertou")
-            lock = false
-        } else {
-            const currentLastCard = lastCard
-            setTimeout(() => {
-                flipCard(position);
-                flipCard(currentLastCard);
-                lock = false
-            }, 2000)
+        //o contador de jogadas é atualizado
+        //note que o contador só é atualizado se exclusivamente duas cartas diferentes forem selecionadas (a position e a lastCard)
+        updateCounter()
 
+        //verificando se acertou ou não:
+        //se o valor guardado pela posição da carta for igual ao valor guardado na posição da última carta, vc acertou
+        if (cards[position] == cards[lastCard]) {
+
+            console.log("acertou")
+            lock = false //desativa o lock, isto é, outras cartas podem ser clicadas (não estão proibidas)
+        }
+
+        //caso contrário...
+        else {
+
+            //a última carta atual recebe a última carta
+            const currentLastCard = lastCard
+
+            //as duas cartas passam um tempo à mostra antes de serem escondidas
+            setTimeout(() => {
+                flipCard(position); //dá o toggle na carta daquela posição
+                flipCard(currentLastCard); //dá o toggle na carta daquela posição
+                lock = false; //desativa o lock, isto é, outras cartas podem ser clicadas depois de...
+            }, 2000) //...2 segundos
+            //note que o cronômetro só começa a contar depois que a segunda carta (currentLastCard) for clicada
 
             console.log("errado");
 
         }
-        lastCard = -1;
-        return;
+        lastCard = -1; //zerou a posição do lastCard
+        return; //acabou a função
     }
 
-    lastCard = position;
-    lock = false
+    //a linha abaixo será executada quando tivermos apenas a 1ª carta selecionada (todas os if acima só funcionam para 2 cartas selecionadas)
+    lastCard = position; //atualiza a lastCard com a posição
+    lock = false // desativa o lock
 }
 
+function flipCard(position) {
 
+    //transformo todos os inner-card numa array --> nessa array seleciono o array[position]
+    const inner = document.querySelectorAll(".inner-card")[position]
 
-/*
-let lastCard = -1; //posição -1 (inexistente) do container
+    //retorno com o toggle da classe flip. 
+    inner.classList.toggle("flip")
+}
 
-function clickCard(event) {
-    console.log(event)
-   
-    //acessar a cardDiv (que é o 1º elemento filho do event)
-    const cardDiv = event.path[0];
-    cardDiv.classList.toggle("face");
-  
-    //atribuir a posição da carta no container/tabuleiro (que será usada para comparação)
-    const position = cardDiv.getAttribute("data-position");
+function isFlipped(position) { //verificar se a carta clicada já estava clicada
 
-    flipCard(position, true);
+    //transformo todos os inner-card numa array --> nessa array seleciono o array[position]
+    const inner = document.querySelectorAll(".inner-card")[position]
 
-    if (lastCard !== -1 && position !== lastCard) {
+    //retorno um resultado verdadeiro (se a carta estiver à mostra) ou falso (se a carta estiver escondida)
+    return inner.classList.contains("flip")
+}
 
-        if (cards[position] == cards[lastCard]) {
-            alert("ganhei um ponto");
+function updateCounter() {
+    moves++
 
-        } else {
+    endGame();
+}
 
-            flipCard(position, false);
+function endGame() {
+    const flippedCards = document.querySelectorAll(".flip")
 
-            flipCard(lastCard, false);
+    if (flippedCards.length == cardNumber) {
 
-            alert("errado");
+        setTimeout(() => {
+            alert(`Você ganhou com ${moves} jogadas!`)
+            restartGame();
 
-        }
-        lastCard = -1;
-        return;
+        }, 1000);
+
     }
-
-    lastCard = position;
-
 }
 
+function restartGame() {
+    const answer = prompt("Deseja recomeçar o jogo?");
 
-function flipCard(position, show) {
+    if (answer === "sim") {
 
-    const cardDiv = document.querySelectorAll(".card")[position];
-
-
-    //atribuindo o front-card à variável cardFront
-    const cardFront = cardDiv.querySelector(".front-card");
-
-    //atribuindo a back-card à variável cardBack
-    const cardBack = cardDiv.querySelector(".back-card");
-
-    if (show == false) {
-        //removendo a classe hidden da cardBack
-        cardBack.classList.toggle("back-card");
-
-        //adicionando a classe hidden à front-card
-        cardFront.classList.toggle("front-card");
+        const container = document.querySelector("#cards-container");
+        container.innerHTML = '';
+        cards = [];
+        moves = 0;
+        gameSettings();
 
     } else {
-        cardBack.classList.toggle("back-card");
-        cardFront.classList.toggle("front-card");
+        return
     }
 }
-*/
