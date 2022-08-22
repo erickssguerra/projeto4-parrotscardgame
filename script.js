@@ -17,12 +17,9 @@ Por favor digite um número número par entre 4 e 14`);
     displayCards();
 }
 
-
 function comparador() { //instruções de randomização?
     return Math.random() - 0.5;
 }
-
-
 
 function shuffleCards() {
 
@@ -34,7 +31,6 @@ function shuffleCards() {
     cards.sort(comparador);
 
 }
-
 
 function displayCards() { //dispor carta a carta na tela
 
@@ -67,7 +63,7 @@ function displayCards() { //dispor carta a carta na tela
 
         //atribuindo a figura do papagaio estático à frente da carta 
         const cardFront = document.createElement("div");
-        cardFront.classList.add("front-card", "face");
+        cardFront.classList.add("face");
         const parrotFront = document.createElement("img");
         parrotFront.src = `./images/front.png`;
         cardFront.appendChild(parrotFront);
@@ -141,7 +137,7 @@ function clickCard(element) {
             }, 2000) //...2 segundos
             //note que o cronômetro só começa a contar depois que a segunda carta (currentLastCard) for clicada
 
-            console.log("errado");
+            console.log("errou");
 
         }
         lastCard = -1; //zerou a posição do lastCard
@@ -192,7 +188,7 @@ function endGame() {
 }
 
 function restartGame() {
-    const answer = prompt("Deseja recomeçar o jogo?");
+    const answer = prompt("Deseja recomeçar o jogo? Responda 'sim' ou 'não'.");
 
     if (answer === "sim") {
 
@@ -202,7 +198,9 @@ function restartGame() {
         moves = 0;
         gameSettings();
 
-    } else {
+    } else if (answer === "não") {
         return
+    } else {
+        restartGame();
     }
 }
